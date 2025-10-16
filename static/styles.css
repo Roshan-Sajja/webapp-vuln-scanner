@@ -1,0 +1,5 @@
+
+body { font-family: Arial, sans-serif; margin: 3rem; }
+form { display: flex; gap: 1rem; }
+input[type="text"] { flex: 1; padding: 0.5rem; }
+button { padding: 0.5rem 1rem; }

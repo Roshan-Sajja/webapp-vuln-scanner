@@ -1,1 +1,15 @@
-<h1>Web App Vulnerability Scanner</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Web App Vulnerability Scanner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Web App Vulnerability Scanner</h1>
+    <form method="POST" action="/start-scan">
+    <input type="text" name="target" placeholder="Enter target URL" required>
+    <button type="submit">Start Scan</button>
+</form>
+</body>
+</html>
