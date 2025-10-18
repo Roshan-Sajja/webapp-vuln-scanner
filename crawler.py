@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 from collections import deque
 
 
@@ -30,4 +30,18 @@ class Crawler:
 
             return {"url":url, "status": "error", "erorr": str(e), "html": None}
         
-
+    def extract_links(self, page_html, base_url):
+        soup = BeautifulSoup(page_html, 'lxml')
+        links = set()
+        for a in soup.find_all('a', href=True):
+            href = a.get('href').strip()
+            absolute = urljoin(base_url, href)
+            parsed = urlparse(absolute)
+            if parsed.scheme not in ('http', 'https'):
+                continue
+            if parsed.fragment:
+                absolute = absolute.split('#')[0]
+            if self.same_origin and parsed.netloc != self.base_origin:
+                continue
+            links.add(absolute.rstrip('/'))
+        return links
