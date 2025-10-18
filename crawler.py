@@ -1,3 +1,4 @@
+import time
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
@@ -45,3 +46,51 @@ class Crawler:
                 continue
             links.add(absolute.rstrip('/'))
         return links
+    
+    def run(self):
+        q = deque()
+        q.append((self.start_url, 0))
+        visited = set([self.start_url])
+        results = []
+
+        while q and len(results) < self.max_pages:
+            url, depth = q.popleft()
+            if depth > self.max_depth:
+                continue
+
+            if self.progress_cb:
+                pct = int((len(results) / max(1, self.max_pages)) * 100)
+                self.progress_cb(f"fetching: {url} (depth: {depth})", pct)
+
+            page = self.fetch_page(url)
+            page['depth'] = depth
+            results.append(page)
+
+            if page.get('html') and depth < self.max_depth:
+                links = self.extract_links(page['html'], url)
+                for link in links:
+                    if link not in visited and len(visited) < self.max_pages:
+                        visited.add(link)
+                        q.append((link, depth + 1))
+            time.sleep(self.delay)
+
+        if self.progress_cb:
+            self.progress_cb(f"Crawling completed: {len(results)} pages fetched", 100)
+        return results
+    
+#local testing
+if __name__ == '__main__':  
+    import sys
+    target = sys.argv[1] if len(sys.argv) > 1 else "http://testphp.vulnweb.com"
+    crawler = Crawler(
+        target,
+        max_depth=2,
+        max_pages=50,
+        same_origin=True,
+        delay=0.3,
+        progress_cb=lambda m, p: print(f"[{p:3d}%] {m}")
+    )
+    pages = crawler.run()
+    print(f"Done. Indexed {len(pages)} pages.")
+    for p in pages[:10]:
+        print(p['url'], p['status'], "depth=", p.get('depth'))
