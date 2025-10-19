@@ -51,7 +51,9 @@ def run_job(job_id):
         ]
         job.update({"status": "completed", "progress": 100, "message": "Done"})
     except Exception as e:
-        job.update({"status": f"error: {e}", "message": "Failed"})
+        import traceback
+        job.update({"status": "error", "message": f"Failed: {str(e)}", "error_detail": traceback.format_exc()})
+
 
 @app.route('/job/<job_id>')
 def job_status(job_id):
@@ -90,7 +92,7 @@ def stream(job_id):
             if current_status in ['completed', 'error']:
                 break
             time.sleep(0.5)
-            
+
     return Response(stream_with_context(generate()), mimetype='text/event-stream')
         
 

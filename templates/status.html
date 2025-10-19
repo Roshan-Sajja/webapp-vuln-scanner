@@ -6,23 +6,30 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+  <div id="job-data" data-job-id="{{ job_id }}" style="display:none;"></div>
   <h1>Scan Status</h1>
-  <p><strong>Target:</strong> {{ job.target }}</p>
-  <p><strong>Status:</strong> {{ job.status }}</p>
+  <p><strong>Target:</strong> <span id="target">{{ job.target }}</span></p>
+  <p><strong>Status:</strong> <span id="status">{{ job.status }}</span></p>
+  <p><strong>Progress:</strong> <span id="progress">{{ job.progress }}</span>%</p>
+  <p><strong>Message:</strong> <span id="message">{{ job.message }}</span></p>
 
-  {% if job.status == 'completed' %}
-    <h2>Indexed Pages (first 20)</h2>
-    <ol>
-      {% for p in job.pages[:20] %}
-        <li>
-          <code>{{ p.url }}</code> — status {{ p.status }} — depth {{ p.depth }}
-        </li>
-      {% endfor %}
-    </ol>
-  {% else %}
-    <p>Refresh this page in a few seconds…</p>
-  {% endif %}
+  <div id="results">
+    {% if job.status == 'completed' and job.pages %}
+      <h2>Indexed Pages (first 20)</h2>
+      <ol id="pages-list">
+        {% for p in job.pages[:20] %}
+          <li>
+            <code>{{ p.url }}</code> — status {{ p.status }} — depth {{ p.depth }}
+          </li>
+        {% endfor %}
+      </ol>
+    {% else %}
+      <p>Scanning in progress...</p>
+    {% endif %}
+  </div>
 
   <p><a href="{{ url_for('index') }}">New scan</a></p>
+
+  <script src="{{ url_for('static', filename='status.js') }}"></script>
 </body>
 </html>
