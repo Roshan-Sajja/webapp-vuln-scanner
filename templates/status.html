@@ -10,7 +10,7 @@
   <p><strong>Target:</strong> {{ job.target }}</p>
   <p><strong>Status:</strong> {{ job.status }}</p>
 
-  {% if job.status == 'done' %}
+  {% if job.status == 'completed' %}
     <h2>Indexed Pages (first 20)</h2>
     <ol>
       {% for p in job.pages[:20] %}
