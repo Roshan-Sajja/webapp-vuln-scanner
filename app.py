@@ -1,9 +1,20 @@
+import os
+from dotenv import load_dotenv
+load_dotenv()
 from flask import Flask, render_template, request, redirect, url_for, Response, stream_with_context
 import threading, uuid, json, time
 from crawler import Crawler
+from db import init_db
+
 app = Flask(__name__)
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev")
+                                     
 
 JOBS = {}
+
+@app.before_first_request
+def setup():
+    init_db()
 
 @app.route('/')
 def index():
