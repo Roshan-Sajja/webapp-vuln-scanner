@@ -7,9 +7,24 @@
 </head>
 <body>
     <h1>Web App Vulnerability Scanner</h1>
-    <form method="POST" action="/start-scan">
-    <input type="text" name="target" placeholder="Enter target URL" required>
-    <button type="submit">Start Scan</button>
-</form>
+
+<form action="{{ url_for('start_scan') }}" method="post">
+      <label>
+        Target URL:
+        <input type="text" name="target" placeholder="https://example.com" required>
+      </label>
+
+      <fieldset>
+        <legend>Checks</legend>
+        <label><input type="checkbox" name="checks" value="SQLi" checked> SQL Injection (SQLi)</label>
+        <label><input type="checkbox" name="checks" value="XSS" checked> Cross-Site Scripting (XSS)</label>
+      </fieldset>
+
+      <button type="submit">Start Scan</button>
+    </form>
+
+    <p style="margin-top:1rem;color:#c00;">
+      <strong>Warning:</strong> Only scan targets you own or have explicit permission to test.
+    </p>
 </body>
 </html>

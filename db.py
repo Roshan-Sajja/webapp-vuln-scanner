@@ -94,6 +94,47 @@ def get_findings_for_page(page_id: int) -> List[Dict[str, Any]]:
         )
         return [dict(r) for r in cur.fetchall()]
     
+def get_findings_for_scan(job_id: str, target_url: str) -> List[Dict[str, Any]]:
+    with get_conn() as conn:
+        curr = conn.execute("""
+            SELECT 
+                p.id as page_id,
+                p.url,
+                p.status_code,
+                f.vuln_type,
+                f.payload,
+                f.evidence,
+                f.created_at
+            FROM findings f
+            JOIN pages p ON f.page_id = p.id
+            WHERE p.url LIKE ?
+            ORDER BY p.url, f.created_at DESC
+        """, (f"{target_url}%",))
+        
+        rows = curr.fetchall()
+
+        findings_by_url = {}
+
+        for row in rows:
+            url = row['url']
+
+            if url not in findings_by_url:
+                findings_by_url[url] = {
+                    'url': url,
+                    'status_code': row['status_code'],
+                    'findings': []
+                }
+
+            findings_by_url[url]['findings'].append({
+                'type': row['vuln_type'],
+                'payload': row['payload'],
+                'evidence': row['evidence'],
+                'timestamp': row['created_at']
+            })
+
+        return list(findings_by_url.values())
+
+
 def clear_all() -> None:
     with get_conn() as conn:
         conn.execute("DELETE FROM findings")

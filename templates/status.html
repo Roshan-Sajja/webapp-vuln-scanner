@@ -6,29 +6,100 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-  <div id="job-data" data-job-id="{{ job_id }}" style="display:none;"></div>
-  <h1>Scan Status</h1>
-  <p><strong>Target:</strong> <span id="target">{{ job.target }}</span></p>
-  <p><strong>Status:</strong> <span id="status">{{ job.status }}</span></p>
-  <p><strong>Progress:</strong> <span id="progress">{{ job.progress }}</span>%</p>
-  <p><strong>Message:</strong> <span id="message">{{ job.message }}</span></p>
+  <div id="job-data" data-job-id="{{ job_id }}"></div>
+  
+  <header>
+    <h1>Scan Status</h1>
+  </header>
 
-  <div id="results">
-    {% if job.status == 'completed' and job.pages %}
-      <h2>Indexed Pages (first 20)</h2>
-      <ol id="pages-list">
-        {% for p in job.pages[:20] %}
-          <li>
-            <code>{{ p.url }}</code> — status {{ p.status }} — depth {{ p.depth }}
-          </li>
-        {% endfor %}
-      </ol>
-    {% else %}
-      <p>Scanning in progress...</p>
+  <section class="scan-info">
+    <p><strong>Target:</strong> <span id="target">{{ job.target }}</span></p>
+    <p><strong>Status:</strong> <span id="status">{{ job.status }}</span></p>
+    <p><strong>Progress:</strong> <span id="progress">{{ job.progress }}</span>%</p>
+    <p><strong>Message:</strong> <span id="message">{{ job.message }}</span></p>
+  </section>
+
+  <section id="vulnerabilities-section">
+    {% if job.status == 'completed' %}
+      {% if vulnerabilities and vulnerabilities|length > 0 %}
+        <h2 class="vuln-header">Vulnerabilities Found</h2>
+        
+        <div class="vuln-summary">
+          <p><strong>Summary:</strong> Found vulnerabilities on {{ vulnerabilities|length }} page(s). Review each finding below for details.</p>
+        </div>
+
+        <div id="vuln-list">
+          {% for page_vulns in vulnerabilities %}
+            <article class="vuln-page">
+              <h3 class="vuln-page-title">{{ page_vulns.url }}</h3>
+              <p class="page-meta">Status Code: {{ page_vulns.status_code }}</p>
+              
+              {% for finding in page_vulns.findings %}
+                <div class="vulnerability">
+                  <p class="vuln-type-label">
+                    <strong>Type:</strong> 
+                    <span class="vuln-type-badge">{{ finding.type }}</span>
+                  </p>
+                  
+                  {% if finding.payload %}
+                    <p class="vuln-payload">
+                      <strong>Payload:</strong> <code>{{ finding.payload }}</code>
+                    </p>
+                  {% endif %}
+                  
+                  <details class="vuln-evidence">
+                    <summary><strong>Evidence</strong></summary>
+                    <div class="evidence-content">
+                      <pre>{{ finding.evidence }}</pre>
+                    </div>
+                  </details>
+                  
+                  {% if finding.timestamp %}
+                    <p class="vuln-timestamp">
+                      <em>Detected: {{ finding.timestamp }}</em>
+                    </p>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </article>
+          {% endfor %}
+        </div>
+        
+      {% else %}
+        <h2 class="success-header">No Vulnerabilities Found</h2>
+        <div class="success-message">
+          <p>Good news! The scan completed successfully and found no vulnerabilities in the tested pages. However, this does not guarantee the application is completely secure. Consider running additional tests and manual security reviews.</p>
+        </div>
+      {% endif %}
     {% endif %}
-  </div>
+  </section>
 
-  <p><a href="{{ url_for('index') }}">New scan</a></p>
+  <section id="results" class="crawled-pages">
+    {% if job.status == 'completed' and job.pages %}
+      <details>
+        <summary class="pages-summary">
+          Crawled Pages ({{ job.pages|length }} total)
+        </summary>
+        <ol id="pages-list">
+          {% for p in job.pages %}
+            <li class="page-item">
+              <code class="page-url">{{ p.url }}</code>
+              <span class="page-status status-{{ p.status }}">status {{ p.status }}</span>
+              <span class="page-depth">depth {{ p.depth }}</span>
+            </li>
+          {% endfor %}
+        </ol>
+      </details>
+    {% elif job.status == 'running' %}
+      <p class="status-running">Scanning in progress... {{ job.progress }}% complete</p>
+    {% elif job.status == 'error' %}
+      <p class="status-error">Scan failed: {{ job.message }}</p>
+    {% endif %}
+  </section>
+
+  <nav class="page-actions">
+    <a href="{{ url_for('index') }}" class="btn-new-scan">Start New Scan</a>
+  </nav>
 
   <script src="{{ url_for('static', filename='status.js') }}"></script>
 </body>
