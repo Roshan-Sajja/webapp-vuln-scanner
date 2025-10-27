@@ -8,98 +8,173 @@
 <body>
   <div id="job-data" data-job-id="{{ job_id }}"></div>
   
-  <header>
-    <h1>Scan Status</h1>
-  </header>
+  <div class="container">
+    <header class="header">
+      <div class="header-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </div>
+      <h1>Scan Status</h1>
+    </header>
 
-  <section class="scan-info">
-    <p><strong>Target:</strong> <span id="target">{{ job.target }}</span></p>
-    <p><strong>Status:</strong> <span id="status">{{ job.status }}</span></p>
-    <p><strong>Progress:</strong> <span id="progress">{{ job.progress }}</span>%</p>
-    <p><strong>Message:</strong> <span id="message">{{ job.message }}</span></p>
-  </section>
+    <section class="scan-info">
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Target</span>
+          <span class="info-value" id="target">{{ job.target }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Status</span>
+          <span class="info-value" id="status">{{ job.status }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Progress</span>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-bar" style="width: {{ job.progress }}%"></div>
+            <span class="progress-text" id="progress">{{ job.progress }}%</span>
+          </div>
+        </div>
+        <div class="info-item full-width">
+          <span class="info-label">Message</span>
+          <span class="info-value" id="message">{{ job.message }}</span>
+        </div>
+      </div>
+    </section>
 
-  <section id="vulnerabilities-section">
-    {% if job.status == 'completed' %}
-      {% if vulnerabilities and vulnerabilities|length > 0 %}
-        <h2 class="vuln-header">Vulnerabilities Found</h2>
-        
-        <div class="vuln-summary">
-          <p><strong>Summary:</strong> Found vulnerabilities on {{ vulnerabilities|length }} page(s). Review each finding below for details.</p>
-        </div>
+    <section id="vulnerabilities-section">
+      {% if job.status == 'completed' %}
+        {% if vulnerabilities and vulnerabilities|length > 0 %}
+          <h2 class="vuln-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            Vulnerabilities Found
+          </h2>
+          
+          <div class="vuln-summary">
+            <p><strong>Summary:</strong> Found vulnerabilities on {{ vulnerabilities|length }} page(s). Review each finding below for details.</p>
+          </div>
 
-        <div id="vuln-list">
-          {% for page_vulns in vulnerabilities %}
-            <article class="vuln-page">
-              <h3 class="vuln-page-title">{{ page_vulns.url }}</h3>
-              <p class="page-meta">Status Code: {{ page_vulns.status_code }}</p>
-              
-              {% for finding in page_vulns.findings %}
-                <div class="vulnerability">
-                  <p class="vuln-type-label">
-                    <strong>Type:</strong> 
-                    <span class="vuln-type-badge">{{ finding.type }}</span>
-                  </p>
+          <div id="vuln-list">
+            {% for page_vulns in vulnerabilities %}
+              <article class="vuln-page">
+                <details class="page-details">
+                  <summary class="vuln-page-summary">
+                    <span class="summary-url">{{ page_vulns.url }}</span>
+                    <span class="summary-count">({{ page_vulns.findings|length }} finding{% if page_vulns.findings|length != 1 %}s{% endif %})</span>
+                  </summary>
                   
-                  {% if finding.payload %}
-                    <p class="vuln-payload">
-                      <strong>Payload:</strong> <code>{{ finding.payload }}</code>
-                    </p>
-                  {% endif %}
-                  
-                  <details class="vuln-evidence">
-                    <summary><strong>Evidence</strong></summary>
-                    <div class="evidence-content">
-                      <pre>{{ finding.evidence }}</pre>
-                    </div>
-                  </details>
-                  
-                  {% if finding.timestamp %}
-                    <p class="vuln-timestamp">
-                      <em>Detected: {{ finding.timestamp }}</em>
-                    </p>
-                  {% endif %}
-                </div>
-              {% endfor %}
-            </article>
-          {% endfor %}
-        </div>
-        
-      {% else %}
-        <h2 class="success-header">No Vulnerabilities Found</h2>
-        <div class="success-message">
-          <p>Good news! The scan completed successfully and found no vulnerabilities in the tested pages. However, this does not guarantee the application is completely secure. Consider running additional tests and manual security reviews.</p>
-        </div>
+                  <div class="page-details-content">
+                    <p class="page-meta">Status Code: {{ page_vulns.status_code }}</p>
+                    
+                    {% for finding in page_vulns.findings %}
+                      <div class="vulnerability" data-vuln-type="{{ finding.type }}">
+                        <p class="vuln-type-label">
+                          <strong>Type:</strong> 
+                          <span class="vuln-type-badge">{{ finding.type }}</span>
+                        </p>
+                        
+                        {% if finding.payload %}
+                          <p class="vuln-payload">
+                            <strong>Payload:</strong> <code>{{ finding.payload }}</code>
+                          </p>
+                        {% endif %}
+                        
+                        <details class="vuln-evidence">
+                          <summary><strong>Evidence</strong></summary>
+                          <div class="evidence-content">
+                            <pre>{{ finding.evidence }}</pre>
+                          </div>
+                        </details>
+                        
+                        {% if finding.timestamp %}
+                          <p class="vuln-timestamp">
+                            <em>Detected: {{ finding.timestamp }}</em>
+                          </p>
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                  </div>
+                </details>
+              </article>
+            {% endfor %}
+          </div>
+          
+        {% else %}
+          <h2 class="success-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            No Vulnerabilities Found
+          </h2>
+          <div class="success-message">
+            <p>Good news! The scan completed successfully and found no vulnerabilities in the tested pages. However, this does not guarantee the application is completely secure. Consider running additional tests and manual security reviews.</p>
+          </div>
+        {% endif %}
       {% endif %}
-    {% endif %}
-  </section>
+    </section>
 
-  <section id="results" class="crawled-pages">
-    {% if job.status == 'completed' and job.pages %}
-      <details>
-        <summary class="pages-summary">
-          Crawled Pages ({{ job.pages|length }} total)
-        </summary>
-        <ol id="pages-list">
-          {% for p in job.pages %}
-            <li class="page-item">
-              <code class="page-url">{{ p.url }}</code>
-              <span class="page-status status-{{ p.status }}">status {{ p.status }}</span>
-              <span class="page-depth">depth {{ p.depth }}</span>
-            </li>
-          {% endfor %}
-        </ol>
-      </details>
-    {% elif job.status == 'running' %}
-      <p class="status-running">Scanning in progress... {{ job.progress }}% complete</p>
-    {% elif job.status == 'error' %}
-      <p class="status-error">Scan failed: {{ job.message }}</p>
-    {% endif %}
-  </section>
+    <section id="results" class="crawled-pages">
+      {% if job.status == 'completed' and job.pages %}
+        <details>
+          <summary class="pages-summary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            Crawled Pages ({{ job.pages|length }} total)
+          </summary>
+          <ol id="pages-list">
+            {% for p in job.pages %}
+              <li class="page-item">
+                <code class="page-url">{{ p.url }}</code>
+                <span class="page-status status-{{ p.status }}">status {{ p.status }}</span>
+                <span class="page-depth">depth {{ p.depth }}</span>
+              </li>
+            {% endfor %}
+          </ol>
+        </details>
+      {% elif job.status == 'running' %}
+        <p class="status-running">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="2" x2="12" y2="6"/>
+            <line x1="12" y1="18" x2="12" y2="22"/>
+            <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/>
+            <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/>
+            <line x1="2" y1="12" x2="6" y2="12"/>
+            <line x1="18" y1="12" x2="22" y2="12"/>
+            <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/>
+            <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/>
+          </svg>
+          Scanning in progress... {{ job.progress }}% complete
+        </p>
+      {% elif job.status == 'error' %}
+        <p class="status-error">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="15" y1="9" x2="9" y2="15"/>
+            <line x1="9" y1="9" x2="15" y2="15"/>
+          </svg>
+          Scan failed: {{ job.message }}
+        </p>
+      {% endif %}
+    </section>
 
-  <nav class="page-actions">
-    <a href="{{ url_for('index') }}" class="btn-new-scan">Start New Scan</a>
-  </nav>
+    <nav class="page-actions">
+      <a href="{{ url_for('index') }}" class="btn-new-scan">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="1 4 1 10 7 10"/>
+          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+        </svg>
+        Start New Scan
+      </a>
+    </nav>
+  </div>
 
   <script src="{{ url_for('static', filename='status.js') }}"></script>
 </body>

@@ -16,9 +16,26 @@ document.addEventListener('DOMContentLoaded', function() {
     eventSource.onmessage = function(event) {
         const data = JSON.parse(event.data);
         
-        document.getElementById('status').textContent = data.status;
-        document.getElementById('progress').textContent = data.progress;
-        document.getElementById('message').textContent = data.message;
+        const statusEl = document.getElementById('status');
+        if (statusEl) {
+            statusEl.textContent = data.status;
+        }
+
+        const messageEl = document.getElementById('message');
+        if (messageEl) {
+            messageEl.textContent = data.message;
+        }
+
+        const progressValue = normalizeProgress(data.progress);
+        const progressTextEl = document.getElementById('progress');
+        if (progressTextEl) {
+            progressTextEl.textContent = progressValue + '%';
+        }
+
+        const progressBarEl = document.getElementById('progress-bar');
+        if (progressBarEl) {
+            progressBarEl.style.width = progressValue + '%';
+        }
 
         if (data.pages && data.pages.length > 0) {
             updatePagesList(data.pages);
@@ -36,7 +53,10 @@ document.addEventListener('DOMContentLoaded', function() {
     eventSource.onerror = function(err) {
         console.error('SSE connection error:', err);
         eventSource.close();
-        document.getElementById('message').textContent = 'Connection error. Please refresh the page.';
+        const messageEl = document.getElementById('message');
+        if (messageEl) {
+            messageEl.textContent = 'Connection error. Please refresh the page.';
+        }
     };
 
     function updatePagesList(pages) {
@@ -64,7 +84,25 @@ document.addEventListener('DOMContentLoaded', function() {
         resultDiv.innerHTML = html;
     }
 
- function displayVulnerabilities(vulnerabilities) {
+    function normalizeProgress(value) {
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            return clampProgress(value);
+        }
+
+        const parsed = parseInt(value, 10);
+        if (Number.isNaN(parsed)) {
+            return 0;
+        }
+        return clampProgress(parsed);
+    }
+
+    function clampProgress(value) {
+        if (value < 0) return 0;
+        if (value > 100) return 100;
+        return value;
+    }
+
+function displayVulnerabilities(vulnerabilities) {
     const vulnSection = document.getElementById('vulnerabilities-section');
     
     if (!vulnSection) {

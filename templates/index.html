@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,25 +7,78 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Web App Vulnerability Scanner</h1>
+    <div class="container">
+        <header class="header">
+            <div class="header-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <path d="M12 8v4m0 4h.01"/>
+                </svg>
+            </div>
+            <h1>Web Vulnerability Scanner</h1>
+            <p class="subtitle">Automated security testing for your web applications</p>
+        </header>
 
-<form action="{{ url_for('start_scan') }}" method="post">
-      <label>
-        Target URL:
-        <input type="text" name="target" placeholder="https://example.com" required>
-      </label>
+        <div class="card">
+            <form action="{{ url_for('start_scan') }}" method="post">
+                <div class="form-group">
+                    <label for="target">Target URL</label>
+                    <div class="input-wrapper">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="2" y1="12" x2="22" y2="12"/>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        </svg>
+                        <input type="text" id="target" name="target" placeholder="https://example.com" required>
+                    </div>
+                </div>
 
-      <fieldset>
-        <legend>Checks</legend>
-        <label><input type="checkbox" name="checks" value="SQLi" checked> SQL Injection (SQLi)</label>
-        <label><input type="checkbox" name="checks" value="XSS" checked> Cross-Site Scripting (XSS)</label>
-      </fieldset>
+                <div class="form-group">
+                    <label>Security Checks</label>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="checks" value="SQLi" checked>
+                            <div class="checkbox-content">
+                                <div class="checkbox-icon">💉</div>
+                                <div class="checkbox-text">
+                                    <strong>SQL Injection</strong>
+                                    <span>Detect database vulnerabilities</span>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="checks" value="XSS" checked>
+                            <div class="checkbox-content">
+                                <div class="checkbox-icon">🔓</div>
+                                <div class="checkbox-text">
+                                    <strong>Cross-Site Scripting</strong>
+                                    <span>Find XSS vulnerabilities</span>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
 
-      <button type="submit">Start Scan</button>
-    </form>
+                <button type="submit" class="btn-primary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                    Start Scan
+                </button>
+            </form>
+        </div>
 
-    <p style="margin-top:1rem;color:#c00;">
-      <strong>Warning:</strong> Only scan targets you own or have explicit permission to test.
-    </p>
+        <div class="warning-card">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <div>
+                <strong>Important:</strong> Only scan targets you own or have explicit written permission to test. Unauthorized security testing may be illegal.
+            </div>
+        </div>
+    </div>
 </body>
 </html>
