@@ -119,17 +119,16 @@ function displayVulnerabilities(vulnerabilities) {
         return;
     }
     
-    // First, let's count how many of each type of vulnerability we found
-    // This gives users a quick overview before diving into details
+
     const vulnStats = calculateVulnerabilityStats(vulnerabilities);
     
-    // Build a summary dashboard that shows the high-level picture
+
     let html = '<h2 class="vuln-header">Vulnerabilities Found</h2>';
     html += '<div class="vuln-summary">';
     html += '<p><strong>Total Issues:</strong> ' + vulnStats.totalFindings + ' findings across ' + vulnerabilities.length + ' page(s)</p>';
     html += '<div class="vuln-type-stats">';
     
-    // Show a breakdown by vulnerability type
+
     for (const [vulnType, count] of Object.entries(vulnStats.byType)) {
         html += '<div class="stat-item">';
         html += '<span class="stat-label">' + escapeHtml(vulnType) + ':</span> ';
@@ -139,7 +138,7 @@ function displayVulnerabilities(vulnerabilities) {
     html += '</div>';
     html += '</div>';
     
-    // Add filter buttons so users can focus on specific vulnerability types
+
     html += '<div class="vuln-filters">';
     html += '<button class="filter-btn active" data-filter="all">Show All</button>';
     for (const vulnType of Object.keys(vulnStats.byType)) {
@@ -147,15 +146,12 @@ function displayVulnerabilities(vulnerabilities) {
     }
     html += '</div>';
     
-    // Now display the detailed findings, but make each page collapsible
-    // This way users only expand the pages they want to investigate
+
     html += '<div id="vuln-list">';
     
     vulnerabilities.forEach((pageVulns, index) => {
         html += '<article class="vuln-page" data-page-index="' + index + '">';
-        
-        // The summary line shows the URL and count, acting as a preview
-        // Users can click to expand and see the full details
+
         html += '<details class="page-details">';
         html += '<summary class="vuln-page-summary">';
         html += '<span class="summary-url">' + escapeHtml(pageVulns.url) + '</span>';
@@ -164,12 +160,12 @@ function displayVulnerabilities(vulnerabilities) {
         html += ')</span>';
         html += '</summary>';
         
-        // The full details are hidden until the user expands this section
+
         html += '<div class="page-details-content">';
         html += '<p class="page-meta">Status Code: ' + pageVulns.status_code + '</p>';
         
         pageVulns.findings.forEach((finding, findingIndex) => {
-            // Each vulnerability gets tagged with its type for filtering
+
             html += '<div class="vulnerability" data-vuln-type="' + escapeHtml(finding.type) + '">';
             
             html += '<p class="vuln-type-label">';
@@ -183,7 +179,7 @@ function displayVulnerabilities(vulnerabilities) {
                 html += '</p>';
             }
             
-            // Evidence is in a nested collapsible section for even more control
+
             html += '<details class="vuln-evidence">';
             html += '<summary><strong>Evidence</strong></summary>';
             html += '<div class="evidence-content">';
@@ -200,20 +196,19 @@ function displayVulnerabilities(vulnerabilities) {
             html += '</div>';
         });
         
-        html += '</div>'; // Close page-details-content
-        html += '</details>'; // Close page-details
+        html += '</div>'; 
+        html += '</details>'; 
         html += '</article>';
     });
     
     html += '</div>';
     vulnSection.innerHTML = html;
     
-    // After creating the HTML, attach event listeners to make filtering work
+
     attachFilterListeners();
 }
 
-// This helper function counts up all the vulnerabilities by type
-// It processes the data structure to give us statistics for the summary
+
 function calculateVulnerabilityStats(vulnerabilities) {
     const stats = {
         totalFindings: 0,
@@ -234,8 +229,7 @@ function calculateVulnerabilityStats(vulnerabilities) {
     return stats;
 }
 
-// This function makes the filter buttons interactive
-// When you click a button, it shows only vulnerabilities of that type
+
 function attachFilterListeners() {
     const filterButtons = document.querySelectorAll('.filter-btn');
     
@@ -247,7 +241,7 @@ function attachFilterListeners() {
             filterButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
             
-            // Show or hide vulnerabilities based on the selected filter
+
             const vulnerabilities = document.querySelectorAll('.vulnerability');
             vulnerabilities.forEach(vuln => {
                 const vulnType = vuln.getAttribute('data-vuln-type');
@@ -258,7 +252,7 @@ function attachFilterListeners() {
                 }
             });
             
-            // Also manage the visibility of pages that have no visible findings after filtering
+
             const pages = document.querySelectorAll('.vuln-page');
             pages.forEach(page => {
                 const visibleVulns = page.querySelectorAll('.vulnerability[style="display: block;"], .vulnerability:not([style*="display: none"])');
